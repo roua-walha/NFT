@@ -7,7 +7,7 @@ import Navigation from '../src/Component/Navbar';
 
 //import Home from './Home.js'
 import Create from './Component/Create'
-//import MyListedItems from './MyListedItems.js'
+import My_listed_items from './Component/My_listed_items'
 //import MyPurchases from './MyPurchases.js'
 //import MarketplaceAbi from '../contractsData/Marketplace.json'
 //import MarketplaceAddress from '../contractsData/Marketplace-address.json'
@@ -33,6 +33,9 @@ function App() {
               
               <Route path="/create" element={
                 <Create  />
+              } />
+              <Route path="/MyListedItems" element={
+                <My_listed_items/>
               } />
               
             </Routes>
