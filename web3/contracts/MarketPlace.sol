@@ -15,8 +15,7 @@ contract Marketplace is ReentrancyGuard {
         IERC721 nft;
         uint tokenId;
         uint price;
-        address payable seller;
-        address owner;
+        address payable seller;address(this)
         bool sold;
     }
 
