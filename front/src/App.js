@@ -5,7 +5,7 @@ import {
 } from "react-router-dom";
 import Navigation from '../src/Component/Navbar';
 
-//import Home from './Home.js'
+import Home from "./Component/Home";
 import Create from './Component/Create'
 import MyListedItems from './Component/MyListedItems'
 //import MyPurchases from './MyPurchases.js'
@@ -36,6 +36,10 @@ function App() {
               } />
               <Route path="/MyNfts" element={
                 <MyListedItems />
+              } />
+
+<Route path="/Home" element={
+                <Home  />
               } />
               
             </Routes>
