@@ -3,8 +3,10 @@ import { Row, Form, Button, Card } from 'react-bootstrap';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import Web3 from 'web3';
+import { useNavigate } from 'react-router-dom';
 import MARKETPLACEconfiguration from '../contracts/Marketplace.json';
 import NFTconfiguration from '../contracts/NFT.json';
+import SuccessModalList from './SuccessModalList'
 const calculateDeadline = (selectedDuration) => {
     const durationValues = {
       '1 hour': 3600,
@@ -31,6 +33,7 @@ const QuickListForm = ({ onClose, selectedNFT }) => {
   const [duration, setDuration] = useState('1 hour');
   const [deadline, setDeadline] = useState(calculateDeadline('1 hour'));
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [SuccessModalListVisible, setSuccessModalListVisible] = useState(false);
 
 
   const createNFT = async ()  => {
@@ -52,14 +55,20 @@ const QuickListForm = ({ onClose, selectedNFT }) => {
     const NFTContract = new web3.eth.Contract(NFT_ABI, NFT_ADDRESS);
     const id= selectedNFT.tokenId;
     try{
-      await NFTContract.methods.approve(MARKETPLACE_ADDRESS,id).send({ from: '0xb0EB7d58BD9892ad8A8bE898035BfDc2f66d4443' });
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      await NFTContract.methods.approve(MARKETPLACE_ADDRESS,id).send({ from: accounts[0] });
       
     }
     catch (error) {
       console.error('Error approving contract:', error);
     }
     try{
-      await MARKETPLACEContract.methods.makeItem(NFT_ADDRESS,id,price).send({ from: '0xb0EB7d58BD9892ad8A8bE898035BfDc2f66d4443' });
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      await MARKETPLACEContract.methods.makeItem(NFT_ADDRESS,id,price).send({ from: accounts[0] }).then(() => { ; 
+      
+        setSuccessModalListVisible(true); // Show the success modal
+        
+      });
     }
     catch (error) {
       console.error('Error make item:', error);
@@ -86,7 +95,8 @@ const QuickListForm = ({ onClose, selectedNFT }) => {
       setDeadline(calculateDeadline(duration, date));
     }
   };
-
+  
+  const navigate = useNavigate();
   
   return (
     <div className="container-fluid mt-5">
@@ -118,7 +128,7 @@ const QuickListForm = ({ onClose, selectedNFT }) => {
                     size="lg"
                     required
                     type="number"
-                    placeholder="Price in ETH"
+                    placeholder="Price in Wei"
                   />
                   <div className="d-flex justify-content-between align-items-center">
                     <div>
@@ -169,6 +179,11 @@ const QuickListForm = ({ onClose, selectedNFT }) => {
               </Card>
             </Row>
           </div>
+
+          <SuccessModalList
+        show={SuccessModalListVisible}
+        onClose={() => {setSuccessModalListVisible(false); navigate('/Home')}}
+      />
         </main>
       </div>
     </div>
@@ -176,7 +191,6 @@ const QuickListForm = ({ onClose, selectedNFT }) => {
 };
 
 export default QuickListForm;
-
 
 
 

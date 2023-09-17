@@ -1,22 +1,21 @@
 import { useState } from 'react';
 import { Row, Form, Button } from 'react-bootstrap';
-import Moralis from 'moralis';
-// import { create as ipfsHttpClient } from 'ipfs-http-client';
+//import Moralis from 'moralis';
 import { web3, NFTContract } from '../Component/webprovider';
 import Web3 from 'web3';
 import NFTconfiguration from '../contracts/NFT.json';
-//import MARKETPLACEconfiguration from '../contracts/'
+import SuccessModalMint from './SuccessModalMint';
+import { useNavigate } from 'react-router-dom';
+
 import  axios  from "axios";
 const JWT = `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiI5ZGE3Mjg1Ni0wMjUyLTQ5YWYtYTBmZC02YWQ3YzQ0ZGQ2ZDYiLCJlbWFpbCI6InJvdWF3YWxoYTdAZ21haWwuY29tIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInBpbl9wb2xpY3kiOnsicmVnaW9ucyI6W3siaWQiOiJGUkExIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9LHsiaWQiOiJOWUMxIiwiZGVzaXJlZFJlcGxpY2F0aW9uQ291bnQiOjF9XSwidmVyc2lvbiI6MX0sIm1mYV9lbmFibGVkIjpmYWxzZSwic3RhdHVzIjoiQUNUSVZFIn0sImF1dGhlbnRpY2F0aW9uVHlwZSI6InNjb3BlZEtleSIsInNjb3BlZEtleUtleSI6IjVmYzk0ODhmZWViNTE3OTU5MGQ0Iiwic2NvcGVkS2V5U2VjcmV0IjoiZjUxMTgzYWY3YmFhNzdkMTQzMTZkNWYwYjdlMWQ2MTQ2OThiMmRiZjVjOTZiNGYwNzQwMmQ1NDE3MDNjM2NhOCIsImlhdCI6MTY5MDU5NzEwOX0.YUfMl-J-Cr8UDcCWVYgWoveDRbEis16gwISgF2AfgtY`
-//import pinataSDK from '@pinata/sdk'; // Import the Pinata SDK
-//const pinataApiKey = '48f0598706c4aaf60db6'; // Replace with your actual Pinata API key
-//const pinataSecretApiKey = '4da95f298767ba4122e65f7d7a7fc223c4eb2b2ee2c62495edfa84d8d7a3c15d'; // Replace with your actual Pinata Secret API key
-//const client = pinataSDK(pinataApiKey, pinataSecretApiKey); // Initialize the Pinata client
+
   const Create = () => {
   const [image, setImage] = useState('');
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [fileUrl, setFileUrl] = useState('')
+  const [fileUrl, setFileUrl] = useState('');
+  const [SuccessModalMintVisible, setSuccessModalMintVisible] = useState(false);
   const uploadToIPFS = async (event) => {
     const reader = new FileReader();
         if(event.target.files[0]) reader.readAsDataURL(event.target.files[0])
@@ -27,70 +26,15 @@ const JWT = `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24
             setFileUrl(event.target.files[0])
         }
   };
-  const showNFT = async () => {
-    /*try {
-      const web3 = new Web3(window.ethereum);
-      const NFT_ABI = NFTconfiguration.abi;
-      const NFT_ADDRESS = "0x6Dbb3355AD4b7C26e7cDbdD86509EE3e0b4A8AC1";
-      const NFTContract = new web3.eth.Contract(NFT_ABI, NFT_ADDRESS);
-      // Call the balanceOf function to get the number of NFTs owned by the wallet address
-      const balance = await NFTContract.methods.balanceOf("0xb0EB7d58BD9892ad8A8bE898035BfDc2f66d4443").call();
-      // Convert the balance to a number
-      const numNFTsOwned = parseInt(balance);
-      // If numNFTsOwned is greater than 0, the wallet owns NFTs
-      if (numNFTsOwned > 0) {
-        console.log(numNFTsOwned);
-      } else {
-        console.log("The wallet does not own any NFTs.");
-      }
-    } catch (error) {
-      console.error('Error checking ownership:', error);
-    }*/
-    try {
-      await Moralis.start({
-        apiKey: "kBOIfRaOgIKbDdGf2TjjoasWakchpwtTGam7evplfAKt5xf2vOo9xIo5mP85kPpf"
-      });
-      const response = await Moralis.EvmApi.nft.getWalletNFTs({
-        "chain": "0x5",
-        "format": "decimal",
-        "mediaItems": false,
-        "address": "0xb0EB7d58BD9892ad8A8bE898035BfDc2f66d4443"
-      });
-      console.log(response.result); // Log the result array containing the NFTs
-      // If you want to log each individual token, you can use a loop
-      response.result.forEach((nft) => {
-        console.log("NFT Object:", nft);
-        console.log("NFT id:",nft.tokenId)
-        // Log any other properties you want from the NFT object
-      });
-      // Fetch and display metadata for each NFT
-      response.result.forEach(async (nft) => {
-        try {
-          // Fetch metadata from the tokenUri
-          const metadataResponse = await fetch(nft.tokenUri);
-          // Check if the response is successful (status code 200)
-          if (metadataResponse.ok) {
-            // Parse the JSON metadata
-            const metadata = await metadataResponse.json();
-            console.log("NFT Metadata:", metadata);
-            // Extract and display relevant information
-            console.log("Name:", metadata.name);
-            console.log("Description:", metadata.description);
-            console.log("Image:", metadata.image);
-            // ... (extract and display other properties as needed)
-          } else {
-            console.error('Failed to fetch metadata:', metadataResponse);
-          }
-        } catch (error) {
-          console.error('Error fetching metadata:', error);
-        }
-      });
-    } catch (e) {
-      console.error(e);
-    }
-  }
+ 
   const createNFT = async () => {
-    if (!image || !name || !description) return;
+
+    if (!window.ethereum) {
+      alert("Metamask wallet is not detected. Please install Metamask to make a purchase.");
+      return;
+    }
+    if (!image || !name || !description){alert("Please ensure that you have selected a file, entered a name, and provided a description.");
+    return;} 
     try {
       const formData = new FormData();
       formData.append('file', fileUrl);      
@@ -142,19 +86,21 @@ const JWT = `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24
       const NFT_ADDRESS ="0x6Dbb3355AD4b7C26e7cDbdD86509EE3e0b4A8AC1";
       const NFT_ABI = NFTconfiguration.abi;
       const NFTContract = new web3.eth.Contract(NFT_ABI, NFT_ADDRESS);
-      await NFTContract.methods.mint( metadataURI).send({ from: '0xb0EB7d58BD9892ad8A8bE898035BfDc2f66d4443' });
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      await NFTContract.methods.mint( metadataURI).send({ from: accounts[0] })
+      .then(() => { 
+        setSuccessModalMintVisible(true); // Show the success modal
+      })
+  ;
       // get tokenId of new nft 
     const id = await NFTContract.methods.tokenCount().call();
     console.log(id);
-    //approve marketplace to spend nft
-    //await(await NFTContract.setApprovalForAll(MARKETPLACEContract.address, true)).wait()
-    //add nft to marketplace
-    //const listingPrice = ethers.utils.parseEther(price.toString())
-    //await(await MARKETPLACEContract.makeItem(NFTContract.address, id, listingPrice)).wait()
+   
     } catch (error) {
       console.log('IPFS uri upload error: ', error);
     }
   };
+  const navigate = useNavigate();
   return (
     <div className="container-fluid mt-5">
       <div className="row">
@@ -177,6 +123,10 @@ const JWT = `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24
               </div>
             </Row>
           </div>
+          <SuccessModalMint
+        show={SuccessModalMintVisible}
+        onClose={() => {setSuccessModalMintVisible(false); navigate('/MyNfts')}}
+      />
         </main>
       </div>
     </div>

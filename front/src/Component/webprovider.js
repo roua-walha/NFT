@@ -1,6 +1,6 @@
 import Web3 from 'web3';
 import NFTconfiguration from '../contracts/NFT.json';
-
+import MARKETPLACEconfiguration from '../contracts/Marketplace.json'
 
 // Use the Goerli testnet URL
 const web3 = new Web3('https://goerli.infura.io/v3/48034cd842a44192bd912cfabb98ab5b');
@@ -13,8 +13,12 @@ const NFT_ABI = NFTconfiguration.abi;
 const NFTContract = new web3.eth.Contract(NFT_ABI, NFT_ADDRESS);
 
 
+    const MARKETPLACE_ADDRESS ="0x8Fa3bCE4D250A9Ec2050F9f2C13AD9d98c8B840C";
+    const MARKETPLACE_ABI = MARKETPLACEconfiguration.abi;
+    const MARKETPLACEContract = new web3.eth.Contract(MARKETPLACE_ABI, MARKETPLACE_ADDRESS);
 
-export { web3, NFTContract };
+
+export { web3, NFTContract,MARKETPLACEContract };
 
 
 
